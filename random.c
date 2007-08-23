@@ -114,11 +114,11 @@ float _rand_normal(uint32_t r)
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
-      const uint32_t rabs = r&0x7fffffffUL;
-      const int idx = (int)(r&0xFF);
+      const uint32_t rabs = r & 0x7fffffffUL;
+      const int idx = r & 0xFF;
       const float x = ((int32_t)r) * _rand_normal_w[idx];
       if (rabs < _rand_normal_k[idx])
-	return x;
+	  return x;   /* 99.3% of the time we return here 1st try */
       if (idx == 0)
 	{
 	  /* As stated in Marsaglia and Tsang

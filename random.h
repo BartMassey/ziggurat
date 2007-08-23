@@ -66,8 +66,8 @@ static inline float uniform(void) {
 static inline float normal(void) {
       /* 32-bit mantissa */
       const uint32_t r = rand32();
-      const uint32_t rabs = r&0x7fffffffUL;
-      const int idx = (int)(r&0xFF);
+      const uint32_t rabs = r & 0x7fffffffUL;
+      const int idx = r & 0xFF;
       const float x = ((int32_t)r) * _rand_normal_w[idx];
       if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
