@@ -51,12 +51,12 @@ static inline uint32_t rand32(void) {
     return state0 + _rand32_state;
 }
 
-inline long random(void) {
+static inline long zrandom(void) {
     assert(RAND_MAX==0x7fffffff);
     return rand32() & RAND_MAX;
 }
 
-inline void srandom(unsigned seed) {
+static inline void szrandom(unsigned seed) {
     _rand32_state = seed;
 }
 

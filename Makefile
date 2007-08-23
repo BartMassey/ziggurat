@@ -28,6 +28,7 @@
 #   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
+DESTDIR = /local
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
@@ -43,6 +44,15 @@ mktables: mktables.c zigconsts.h
 	$(CC) $(CFLAGS) -o mktables mktables.c $(LIBS)
 
 random_tables.o random.o: zigconsts.h random.h
+
+test: test.c random.h librandom.a
+	$(CC) $(CFLAGS) -o test test.c librandom.a -lm
+
+install: librandom.a
+	-mkdir $(DESTDIR)/include/ziggurat
+	cp random.h $(DESTDIR)/include/ziggurat/
+	-mkdir $(DESTDIR)/lib/ziggurat
+	cp librandom.a $(DESTDIR)/lib/ziggurat/
 
 clean:
 	-rm -f *.o librandom.a mktables random_tables.c
