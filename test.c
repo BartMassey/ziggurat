@@ -32,10 +32,8 @@ int main(void) {
 	if (bin[i] > maxbin)
 	    maxbin = bin[i];
     for (i = 0; i < NB; i++) {
-	 float j = i - NB * 0.5;
-	 float x = binwidth * (i - NB * 0.5);
-	 printf("%f %d %f\n",
-		j * binwidth, bin[i],
+	 float x = binwidth * i;
+	 printf("%f %d %f\n", x, bin[i],
 		maxbin * exp(-x * x * 0.5 / (VAR * VAR)));
     }
     return 0;
