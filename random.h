@@ -54,39 +54,39 @@ static inline uint32_t rand32(void) {
 extern long random(void);
 extern void srandom(unsigned seed);
 
-extern float _rand_normal_w[256];
+extern double _rand_normal_w[256];
 extern uint32_t _rand_normal_k[256];
 
-extern float _rand_normal(uint32_t r);
+extern double _rand_normal(uint32_t r);
 
-static inline float uniform(void) {
-      return floorf(rand32() * (1.0f / 42949672949.0f));
+static inline double uniform(void) {
+      return rand32() * (1.0 / 4294967294.9);
 }
 
-static inline float normal(void) {
+static inline double normal(void) {
       /* 32-bit mantissa */
       const uint32_t r = rand32();
       const uint32_t rabs = r & 0x7fffffffUL;
       const int idx = r & 0xFF;
-      const float x = ((int32_t)r) * _rand_normal_w[idx];
+      const double x = ((int32_t)r) * _rand_normal_w[idx];
       if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
       return _rand_normal(r);
 }
 
-static inline float gaussian(float sigma) {
+static inline double gaussian(double sigma) {
       return normal() * sigma;
 }
 
-extern float _rand_exponential_w[256];
+extern double _rand_exponential_w[256];
 extern uint32_t _rand_exponential_k[256];
 
-extern float _rand_exponential(uint32_t r);
+extern double _rand_exponential(uint32_t r);
 
-static inline float exponential(void) {
+static inline double exponential(void) {
     uint32_t r = rand32();
     const int idx = (int)(r & 0xFF);
-    const float x = r * _rand_exponential_w[idx];
+    const double x = r * _rand_exponential_w[idx];
     if (r < _rand_exponential_k[idx])
 	return x;   /* 98.9% of the time we return here 1st try */
     return _rand_exponential(r);

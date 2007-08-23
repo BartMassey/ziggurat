@@ -6,7 +6,7 @@
 #
 DESTDIR = /local
 CC = gcc
-CFLAGS = -g -Wall -O4
+CFLAGS = -g -Wall
 LIBS = -lm
 
 librandom.a: random_tables.o random.o random_compat.o

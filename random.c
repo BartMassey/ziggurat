@@ -38,7 +38,7 @@ This codebase originally came from David Bateman's code in
 GNU Octave.  I've optimized this code by ripping the
 Mersenne Twister back out and replacing it with the faster
 but not so good SHR3 generator Marsaglia and Tsang used
-originally, and changing doubles to floats.  I've also split
+originally, and changing doubles to doubles.  I've also split
 out the relevant stuff into inline functions in random.h,
 and fixed up the interface.  I also ripped out the 64 bit
 code for clarity and portability.  The result should be
@@ -91,8 +91,8 @@ so I'm not going to try and optimize further.  --David Bateman
 
 #include "zigconsts.h"
 
-extern float _rand_normal_f[ZIGGURAT_TABLE_SIZE];
-extern float _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
+extern double _rand_normal_f[ZIGGURAT_TABLE_SIZE];
+extern double _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
 
 /*
  * Here is the guts of the algorithm. As Marsaglia and Tsang state the
@@ -109,14 +109,14 @@ extern float _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
  * distribution is exp(-0.5*x*x)
  */
 
-float _rand_normal(uint32_t r)
+double _rand_normal(uint32_t r)
 {
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
       const uint32_t rabs = r & 0x7fffffffUL;
       const int idx = r & 0xFF;
-      const float x = ((int32_t)r) * _rand_normal_w[idx];
+      const double x = ((int32_t)r) * _rand_normal_w[idx];
       if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
       if (idx == 0)
@@ -131,7 +131,7 @@ float _rand_normal(uint32_t r)
 	   *
 	   * [PAK] but not the bottom 8 bits, since they are all 0 here!
 	   */
-	  float xx, yy;
+	  double xx, yy;
 	  do
 	    {
 	      xx = - ZIGGURAT_NOR_INV_R * log (uniform());
@@ -147,13 +147,13 @@ float _rand_normal(uint32_t r)
     }
 }
 
-float _rand_exponential (uint32_t r)
+double _rand_exponential (uint32_t r)
 {
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
       const int idx = (int)(r & 0xFF);
-      const float x = r * _rand_exponential_w[idx];
+      const double x = r * _rand_exponential_w[idx];
       if (r < _rand_exponential_k[idx])
 	return x;
       else if (idx == 0)

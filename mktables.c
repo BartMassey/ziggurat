@@ -44,7 +44,7 @@
 # define NMANTISSA 2147483648.0 /* 31 bit mantissa */
 # define EMANTISSA 4294967296.0 /* 32 bit mantissa */
 
-static float fi[255], fe[255], wi[255], we[255];
+static double fi[255], fe[255], wi[255], we[255];
 static uint32_t ki[255], ke[255];
 
 static void 
@@ -109,12 +109,12 @@ create_ziggurat_tables (void)
   ke[1] = 0;
 }
 
-void write_float_table(char *name, float *t, int nt) {
+void write_double_table(char *name, double *t, int nt) {
     int i;
-    printf("float %s[%d] = {\n", name, nt);
+    printf("double %s[%d] = {\n", name, nt);
     for (i = 0; i < nt - 1; i++)
-	printf("  %0.9ef,\n", t[i]);
-    printf("  %0.9ef };\n\n", t[nt - 1]);
+	printf("  %.16g,\n", t[i]);
+    printf("  %.16g };\n\n", t[nt - 1]);
 }
 
 void write_uns_table(char *name, uint32_t *t, int nt) {
@@ -132,10 +132,10 @@ int main(void) {
     printf("#include \"random.h\"\n\n");
     write_uns_table("_rand_normal_k", ki, 256);
     write_uns_table("_rand_exponential_k", ke, 256);
-    write_float_table("_rand_normal_w", wi, 256);
-    write_float_table("_rand_exponential_w", we, 256);
-    write_float_table("_rand_normal_f", fi, 256);
-    write_float_table("_rand_exponential_f", fe, 256);
+    write_double_table("_rand_normal_w", wi, 256);
+    write_double_table("_rand_exponential_w", we, 256);
+    write_double_table("_rand_normal_f", fi, 256);
+    write_double_table("_rand_exponential_f", fe, 256);
 
     return 0;
 }
