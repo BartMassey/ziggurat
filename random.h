@@ -65,6 +65,10 @@ extern uint32_t _rand_normal_k[256];
 
 extern float _rand_normal(uint32_t r);
 
+static inline float uniform(void) {
+      return rand32() / 4294967296.0f;
+}
+
 static inline float normal(void) {
       /* 32-bit mantissa */
       const uint32_t r = rand32();
@@ -74,6 +78,10 @@ static inline float normal(void) {
       if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
       return _rand_normal(r);
+}
+
+static inline float gaussian(float sigma) {
+      return normal() * sigma;
 }
 
 extern float _rand_exponential_w[256];
