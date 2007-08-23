@@ -60,7 +60,7 @@ extern uint32_t _rand_normal_k[256];
 extern float _rand_normal(uint32_t r);
 
 static inline float uniform(void) {
-      return rand32() / 4294967296.0f;
+      return floorf(rand32() * (1.0f / 42949672949.0f));
 }
 
 static inline float normal(void) {

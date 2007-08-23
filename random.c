@@ -134,13 +134,13 @@ float _rand_normal(uint32_t r)
 	  float xx, yy;
 	  do
 	    {
-	      xx = - ZIGGURAT_NOR_INV_R * log (rand32());
-	      yy = - log (rand32());
+	      xx = - ZIGGURAT_NOR_INV_R * log (uniform());
+	      yy = - log (uniform());
 	    } 
 	  while ( yy+yy <= xx*xx);
 	  return (rabs&0x100 ? -ZIGGURAT_NOR_R-xx : ZIGGURAT_NOR_R+xx);
 	}
-      else if ((_rand_normal_f[idx-1] - _rand_normal_f[idx]) * rand32() +
+      else if ((_rand_normal_f[idx-1] - _rand_normal_f[idx]) * uniform() +
 	       _rand_normal_f[idx] < exp(-0.5*x*x))
 	return x;
       r = rand32();
@@ -163,10 +163,10 @@ float _rand_exponential (uint32_t r)
 	   * For the exponential tail, the method of Marsaglia[5] provides:
            * x = r - ln(U);
 	   */
-	  return ZIGGURAT_EXP_R - log(rand32());
+	  return ZIGGURAT_EXP_R - log(uniform());
 	}
       else if ((_rand_exponential_f[idx-1] -
-		_rand_exponential_f[idx]) * rand32() +
+		_rand_exponential_f[idx]) * uniform() +
 	       _rand_exponential_f[idx] < exp(-x))
 	return x;
       r = rand32();
