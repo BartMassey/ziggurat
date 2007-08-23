@@ -9,8 +9,8 @@ CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
 
-librandom.a: random_tables.o random.o
-	$(AR) crv librandom.a random_tables.o random.o
+librandom.a: random_tables.o random.o random_compat.o
+	$(AR) crv librandom.a random_tables.o random.o random_compat.o
 	ranlib librandom.a
 
 random_tables.c: mktables
@@ -20,6 +20,8 @@ mktables: mktables.c zigconsts.h
 	$(CC) $(CFLAGS) -o mktables mktables.c $(LIBS)
 
 random_tables.o random.o: zigconsts.h random.h
+
+random_compat.o: random.h
 
 check: test.dat
 	gnuplot test.gnuplot

@@ -51,14 +51,8 @@ static inline uint32_t rand32(void) {
     return state0 + _rand32_state;
 }
 
-static inline long zrandom(void) {
-    assert(RAND_MAX==0x7fffffff);
-    return rand32() & RAND_MAX;
-}
-
-static inline void szrandom(unsigned seed) {
-    _rand32_state = seed;
-}
+extern long random(void);
+extern void srandom(unsigned seed);
 
 extern float _rand_normal_w[256];
 extern uint32_t _rand_normal_k[256];
