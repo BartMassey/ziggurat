@@ -91,7 +91,7 @@ so I'm not going to try and optimize further.  --David Bateman
 
 #include "zigconsts.h"
 
-extern float _rand_uniform_f[ZIGGURAT_TABLE_SIZE];
+extern float _rand_normal_f[ZIGGURAT_TABLE_SIZE];
 extern float _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
 
 /*
@@ -109,15 +109,15 @@ extern float _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
  * distribution is exp(-0.5*x*x)
  */
 
-float _rand_uniform(uint32_t r)
+float _rand_normal(uint32_t r)
 {
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
       const uint32_t rabs = r&0x7fffffffUL;
       const int idx = (int)(r&0xFF);
-      const float x = ((int32_t)r) * _rand_uniform_w[idx];
-      if (rabs < _rand_uniform_k[idx])
+      const float x = ((int32_t)r) * _rand_normal_w[idx];
+      if (rabs < _rand_normal_k[idx])
 	return x;
       if (idx == 0)
 	{
@@ -140,8 +140,8 @@ float _rand_uniform(uint32_t r)
 	  while ( yy+yy <= xx*xx);
 	  return (rabs&0x100 ? -ZIGGURAT_NOR_R-xx : ZIGGURAT_NOR_R+xx);
 	}
-      else if ((_rand_uniform_f[idx-1] - _rand_uniform_f[idx]) * rand32() +
-	       _rand_uniform_f[idx] < exp(-0.5*x*x))
+      else if ((_rand_normal_f[idx-1] - _rand_normal_f[idx]) * rand32() +
+	       _rand_normal_f[idx] < exp(-0.5*x*x))
 	return x;
       r = rand32();
     }

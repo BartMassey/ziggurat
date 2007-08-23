@@ -60,20 +60,20 @@ inline void srandom(unsigned seed) {
     _rand32_state = seed;
 }
 
-extern float _rand_uniform_w[256];
-extern uint32_t _rand_uniform_k[256];
+extern float _rand_normal_w[256];
+extern uint32_t _rand_normal_k[256];
 
-extern float _rand_uniform(uint32_t r);
+extern float _rand_normal(uint32_t r);
 
-static inline float uniform(void) {
+static inline float normal(void) {
       /* 32-bit mantissa */
       const uint32_t r = rand32();
       const uint32_t rabs = r&0x7fffffffUL;
       const int idx = (int)(r&0xFF);
-      const float x = ((int32_t)r) * _rand_uniform_w[idx];
-      if (rabs < _rand_uniform_k[idx])
+      const float x = ((int32_t)r) * _rand_normal_w[idx];
+      if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
-      return _rand_uniform(r);
+      return _rand_normal(r);
 }
 
 extern float _rand_exponential_w[256];
