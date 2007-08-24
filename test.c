@@ -2,19 +2,20 @@
 #include <math.h>
 #include "random.h"
 
-#define NV 10000000
+#define NV 100000000
 float variate[NV];
 
 #define NB 100
 int bin[NB];
 
-#define VAR 2.0
+#define VAR 1.0
 
 int main(void) {
     int i;
     float maxv = 0, minv = 0;
     float binwidth;
-    int maxbin;
+    float a;
+    const float b = -0.5 / (VAR * VAR);
     for (i = 0; i < NV; i++)
 	 variate[i] = gaussian(VAR);
     for (i = 0; i < NV; i++) {
@@ -25,18 +26,14 @@ int main(void) {
 	    maxv = v;
     }
     binwidth = (maxv - minv) / NB;
+    a = NV * erf(binwidth * 0.5 * M_SQRT1_2 / VAR);
     for (i = 0; i < NV; i++) {
 	int j = floor((variate[i] - minv) / binwidth);
 	bin[j]++;
     }
-    maxbin = 0;
-    for (i = 0; i < NB; i++)
-	if (bin[i] > maxbin)
-	    maxbin = bin[i];
     for (i = 0; i < NB; i++) {
 	 float x = binwidth * (i + 0.5) + minv;
-	 printf("%f %d %f\n", x, bin[i],
-		maxbin * exp(x * x * -0.5 / (VAR * VAR)));
+	 printf("%f %d %f\n", x, bin[i], a * exp(x * x * b));
     }
     return 0;
 }
