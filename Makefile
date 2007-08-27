@@ -8,20 +8,22 @@ DESTDIR = /local
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
+DOBJS = normal.o exponential.o random_tab.o exponential_tab.o
+OBJS = random.o random_compat.o $(DOBJS)
 
-librandom.a: random_tables.o random.o random_compat.o
-	$(AR) crv librandom.a random_tables.o random.o random_compat.o
+librandom.a: $(OBJS)
+	$(AR) crv librandom.a $(OBJS)
 	ranlib librandom.a
 
-random_tables.c: mktables
-	./mktables > random_tables.c
+normal_tab.c exponential_tab.c: mktables
+	./mktables
 
 mktables: mktables.c zigconsts.h
 	$(CC) $(CFLAGS) -o mktables mktables.c $(LIBS)
 
-random_tables.o random.o: zigconsts.h random.h
+$(DOBJS): zigconsts.h
 
-random_compat.o: random.h
+$(OBJS): random.h
 
 check: test.dat
 	gnuplot test.gnuplot
@@ -39,4 +41,4 @@ install: librandom.a
 	cp librandom.a $(DESTDIR)/lib/ziggurat/
 
 clean:
-	-rm -f *.o librandom.a random_tables.c mktables test.dat test
+	-rm -f $(OBJS) librandom.a random_tables.c mktables test.dat test
