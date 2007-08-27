@@ -134,7 +134,7 @@ int main(void) {
     FILE *fp;
     create_ziggurat_tables();
 
-    fp = fopen("normal_tab.c", w);
+    fp = fopen("normal_tab.c", "w");
     assert(fp);
     write_header(fp);
     write_uns_table(fp, "_rand_normal_k", ki, 256);
@@ -142,7 +142,7 @@ int main(void) {
     write_double_table(fp, "_rand_normal_f", fi, 256);
     fclose(fp);
 
-    fp = fopen("exponential_tab.c", w);
+    fp = fopen("exponential_tab.c", "w");
     assert(fp);
     write_header(fp);
     write_uns_table(fp, "_rand_exponential_k", ke, 256);

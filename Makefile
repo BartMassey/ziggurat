@@ -8,14 +8,15 @@ DESTDIR = /local
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
-DOBJS = normal.o exponential.o random_tab.o exponential_tab.o
+TABS = normal_tab.c exponential_tab.c
+DOBJS = normal.o exponential.o normal_tab.o exponential_tab.o
 OBJS = random.o random_compat.o $(DOBJS)
 
 librandom.a: $(OBJS)
 	$(AR) crv librandom.a $(OBJS)
 	ranlib librandom.a
 
-normal_tab.c exponential_tab.c: mktables
+$(TABS): mktables
 	./mktables
 
 mktables: mktables.c zigconsts.h
@@ -41,4 +42,4 @@ install: librandom.a
 	cp librandom.a $(DESTDIR)/lib/ziggurat/
 
 clean:
-	-rm -f $(OBJS) librandom.a random_tables.c mktables test.dat test
+	-rm -f $(OBJS) librandom.a $(TABS) mktables test.dat test
