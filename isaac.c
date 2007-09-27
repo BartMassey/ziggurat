@@ -6,124 +6,121 @@ MODIFIED:
   970719: use context, not global variables, for internal state
   980324: added main (ifdef'ed out), also rearranged randinit()
   010626: Note that this is public domain
+  070927 Bart Massey <bart@cs.pdx.edu>: cleanups for inclusion in libziggurat
 ------------------------------------------------------------------------------
 */
-#ifndef STANDARD
-#include "standard.h"
-#endif
-#ifndef RAND
-#include "rand.h"
-#endif
+#include <isaac.h>
 
-
-#define ind(mm,x)  (*(ub4 *)((ub1 *)(mm) + ((x) & ((RANDSIZ-1)<<2))))
-#define rngstep(mix,a,b,mm,m,m2,r,x) \
-{ \
-  x = *m;  \
-  a = (a^(mix)) + *(m2++); \
-  *(m++) = y = ind(mm,x) + a + b; \
-  *(r++) = b = ind(mm,y>>RANDSIZL) + x; \
+inline static uint32_t ind(uint32_t *mm, uint32_t x) {
+    return *(uint32_t *)((uint8_t *)mm + ((x) & ((_RANDSIZ-1)<<2)));
 }
 
-void     isaac(ctx)
-randctx *ctx;
-{
-   register ub4 a,b,x,y,*m,*mm,*m2,*r,*mend;
-   mm=ctx->randmem; r=ctx->randrsl;
+/* XXX requires calling in very specific context below.
+   x and y are locals, others are notionally parameters. */
+#define RNGSTEP(mix) \
+  x = *m; \
+  a = (a ^ (mix)) + *m2++; \
+  *m++ = y = ind(mm, x) + a + b; \
+  *r++ = b = ind(mm, y >> _RANDSIZL) + x
+
+void isaac(randctx *ctx) {
+   uint32_t a, b, x, y;
+   uint32_t *m, *mm, *m2, *r, *mend;
+   mm = ctx->randmem; r = ctx->randrsl;
    a = ctx->randa; b = ctx->randb + (++ctx->randc);
-   for (m = mm, mend = m2 = m+(RANDSIZ/2); m<mend; )
+   for (m = mm, mend = m2 = m + _RANDSIZ / 2; m < mend; )
    {
-      rngstep( a<<13, a, b, mm, m, m2, r, x);
-      rngstep( a>>6 , a, b, mm, m, m2, r, x);
-      rngstep( a<<2 , a, b, mm, m, m2, r, x);
-      rngstep( a>>16, a, b, mm, m, m2, r, x);
+     RNGSTEP(a << 13);
+     RNGSTEP(a >> 6);
+     RNGSTEP(a << 2);
+     RNGSTEP(a >> 16);
    }
-   for (m2 = mm; m2<mend; )
+   for (m2 = mm; m2 < mend; )
    {
-      rngstep( a<<13, a, b, mm, m, m2, r, x);
-      rngstep( a>>6 , a, b, mm, m, m2, r, x);
-      rngstep( a<<2 , a, b, mm, m, m2, r, x);
-      rngstep( a>>16, a, b, mm, m, m2, r, x);
+     RNGSTEP(a << 13);
+     RNGSTEP(a >> 6);
+     RNGSTEP(a << 2);
+     RNGSTEP(a >> 16);
    }
    ctx->randb = b; ctx->randa = a;
 }
 
 
-#define mix(a,b,c,d,e,f,g,h) \
-{ \
-   a^=b<<11; d+=a; b+=c; \
-   b^=c>>2;  e+=b; c+=d; \
-   c^=d<<8;  f+=c; d+=e; \
-   d^=e>>16; g+=d; e+=f; \
-   e^=f<<10; h+=e; f+=g; \
-   f^=g>>4;  a+=f; g+=h; \
-   g^=h<<8;  b+=g; h+=a; \
-   h^=a>>9;  c+=h; a+=b; \
+static inline void mix(uint32_t a, uint32_t b,
+		       uint32_t c, uint32_t d,
+		       uint32_t e, uint32_t f,
+		       uint32_t g, uint32_t h) {
+   a ^= b << 11; d += a; b += c;
+   b ^= c >> 2;  e += b; c += d;
+   c ^= d << 8;  f += c; d += e;
+   d ^= e >> 16; g += d; e += f;
+   e ^= f << 10; h += e; f += g;
+   f ^= g >> 4;  a += f; g += h;
+   g ^= h << 8;  b += g; h += a;
+   h ^= a >> 9;  c += h; a += b;
 }
 
 /* if (flag==TRUE), then use the contents of randrsl[] to initialize mm[]. */
-void randinit(ctx, flag)
-randctx *ctx;
-word     flag;
-{
-   word i;
-   ub4 a,b,c,d,e,f,g,h;
-   ub4 *m,*r;
+void isaac_init(randctx *ctx, int flag) {
+   int i;
+   uint32_t a, b, c, d, e, f, g, h;
+   uint32_t *m, *r;
    ctx->randa = ctx->randb = ctx->randc = 0;
-   m=ctx->randmem;
-   r=ctx->randrsl;
-   a=b=c=d=e=f=g=h=0x9e3779b9;  /* the golden ratio */
+   m = ctx->randmem;
+   r = ctx->randrsl;
+   a = b = c = d = e = f = g = h = 0x9e3779b9;  /* the golden ratio */
 
-   for (i=0; i<4; ++i)          /* scramble it */
-   {
-     mix(a,b,c,d,e,f,g,h);
-   }
+   for (i = 0; i < 4; i++)          /* scramble it */
+     mix(a, b, c, d, e, f, g, h);
 
-   if (flag) 
+   if (flag)
    {
      /* initialize using the contents of r[] as the seed */
-     for (i=0; i<RANDSIZ; i+=8)
+     for (i = 0; i < _RANDSIZ; i += 8)
      {
-       a+=r[i  ]; b+=r[i+1]; c+=r[i+2]; d+=r[i+3];
-       e+=r[i+4]; f+=r[i+5]; g+=r[i+6]; h+=r[i+7];
-       mix(a,b,c,d,e,f,g,h);
-       m[i  ]=a; m[i+1]=b; m[i+2]=c; m[i+3]=d;
-       m[i+4]=e; m[i+5]=f; m[i+6]=g; m[i+7]=h;
+       a+=r[i    ]; b += r[i + 1]; c += r[i + 2]; d += r[i + 3];
+       e+=r[i + 4]; f += r[i + 5]; g += r[i + 6]; h += r[i + 7];
+       mix(a, b, c, d, e, f, g, h);
+       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
+       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
      /* do a second pass to make all of the seed affect all of m */
-     for (i=0; i<RANDSIZ; i+=8)
+     for (i = 0; i < _RANDSIZ; i += 8)
      {
-       a+=m[i  ]; b+=m[i+1]; c+=m[i+2]; d+=m[i+3];
-       e+=m[i+4]; f+=m[i+5]; g+=m[i+6]; h+=m[i+7];
-       mix(a,b,c,d,e,f,g,h);
-       m[i  ]=a; m[i+1]=b; m[i+2]=c; m[i+3]=d;
-       m[i+4]=e; m[i+5]=f; m[i+6]=g; m[i+7]=h;
+       a+=m[i    ]; b += m[i + 1]; c += m[i + 2]; d += m[i + 3];
+       e+=m[i + 4]; f += m[i + 5]; g += m[i + 6]; h += m[i + 7];
+       mix(a, b, c, d, e, f, g, h);
+       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
+       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
    }
    else
    {
      /* fill in m[] with messy stuff */
-     for (i=0; i<RANDSIZ; i+=8)
+     for (i = 0; i < _RANDSIZ; i += 8)
      {
-       mix(a,b,c,d,e,f,g,h);
-       m[i  ]=a; m[i+1]=b; m[i+2]=c; m[i+3]=d;
-       m[i+4]=e; m[i+5]=f; m[i+6]=g; m[i+7]=h;
+       mix(a, b, c, d, e, f, g, h);
+       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
+       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
    }
 
-   isaac(ctx);            /* fill in the first set of results */
-   ctx->randcnt=RANDSIZ;  /* prepare to use the first set of results */
+   isaac(ctx);               /* fill in the first set of results */
+   ctx->randcnt = _RANDSIZ;  /* prepare to use the first set of results */
 }
 
 
-#ifdef NEVER
+#ifdef TEST_DRIVER
+#include <stdio.h>
+
 int main()
 {
-  ub4 i,j;
+  uint32_t i, j;
   randctx ctx;
-  ctx.randa=ctx.randb=ctx.randc=(ub4)0;
-  for (i=0; i<256; ++i) ctx.randrsl[i]=(ub4)0;
-  randinit(&ctx, TRUE);
+  ctx.randa = ctx.randb = ctx.randc = 0;
+  for (i = 0; i < 256; i++)
+    ctx.randrsl[i] = 0;
+  isaac_init(&ctx, 1);
   for (i=0; i<2; ++i)
   {
     isaac(&ctx);
