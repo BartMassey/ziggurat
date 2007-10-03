@@ -8,7 +8,7 @@
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-   
+
      1. Redistributions of source code must retain the above copyright
         notice, this list of conditions and the following disclaimer.
 
@@ -16,14 +16,14 @@
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
 
-     3. The names of its contributors may not be used to endorse or promote 
-        products derived from this software without specific prior written 
+     3. The names of its contributors may not be used to endorse or promote
+        products derived from this software without specific prior written
         permission.
 
    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER 
+   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER
    OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
@@ -33,14 +33,31 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define ZIGGURAT_TABLE_SIZE 256
+/* Please see normal.c in this distribution for more information. */
 
-#define ZIGGURAT_NOR_R 3.6541528853610088
-#define ZIGGURAT_NOR_INV_R 0.27366123732975828
-#define NOR_SECTION_AREA 0.00492867323399
+#include "random.h"
+#include <math.h>
+#include "zigconsts.h"
 
-#define ZIGGURAT_EXP_R 7.69711747013104972
-#define ZIGGURAT_EXP_INV_R 0.129918765548341586
-#define EXP_SECTION_AREA 0.0039496598225815571993
+extern double _rand_polynomial_f[ZIGGURAT_TABLE_SIZE];
 
-#define ZIGGURAT_POLYNOMIAL_N 50
+double _rand_polynomial (uint32_t r, int n)
+{
+  while (1)
+    {
+      /* XXX we recompute some things here to clean up the inline case */
+      const int idx = (int)(r & 0xFF);
+      const double x = r * _rand_polynomial_w[idx];
+      double y, y1;
+      if (r < _rand_polynomial_k[idx])
+	  return x;
+      y1 = _rand_polynomial_f[idx];
+      if (idx == 0xFF)
+	  y = 0;
+      else
+	  y = _rand_polynomial_f[idx + 1];
+      if ((y1 - y) * uniform() + y < pow(1 - x, n))
+	  return x;
+      r = rand32();
+    }
+}

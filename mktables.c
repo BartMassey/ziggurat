@@ -43,9 +43,28 @@
 
 # define NMANTISSA 2147483648.0 /* 31 bit mantissa */
 # define EMANTISSA 4294967296.0 /* 32 bit mantissa */
+# define PMANTISSA 4294967296.0 /* 32 bit mantissa */
 
-static double fi[255], fe[255], wi[255], we[255];
-static uint32_t ki[255], ke[255];
+static double fi[256], fe[256], fp[256];
+static double wi[256], we[256], wp[256];
+static uint32_t ki[256], ke[256], kp[256];
+
+static double polynomial_advance(int x0) {
+    double A = (1 - exp(-1)) / 256;
+    double dx = 0.5;
+    double x = x0;
+    while(1) {
+	double x1 = x + dx;
+	double a;
+	if (x1 == x)
+	    return x;
+	a = (x1 - x0) * (exp(-x0) - exp(-x1));
+	if (a <= A)
+	    x = x1;
+	dx *= 0.5;
+    }
+    abort();
+}
 
 static void 
 create_ziggurat_tables (void)
@@ -107,6 +126,20 @@ create_ziggurat_tables (void)
       x1 = x;
     }
   ke[1] = 0;
+
+  /* Zigurrat tables for the polynomial distribution. */
+  /* XXX Goes forward instead of backward here, just gratuitously. */
+  x1 = 0;
+  for (i = 0; i < 256; i++)
+    {
+      x = polynomial_advance(x1);
+      if (i == 255)
+	x = 1;
+      kp[i] = (uint32_t)(floor((1 - exp(-x1 / 50)) / x * PMANTISSA ));
+      wp[i] = x / PMANTISSA;
+      fp[i] = exp(-x1);
+      x1 = x;
+    }
 }
 
 void write_double_table(FILE *fp, char *name, double *t, int nt) {
@@ -131,24 +164,32 @@ void write_header(FILE *fp) {
 }
 
 int main(void) {
-    FILE *fp;
+    FILE *f;
     create_ziggurat_tables();
 
-    fp = fopen("normal_tab.c", "w");
-    assert(fp);
-    write_header(fp);
-    write_uns_table(fp, "_rand_normal_k", ki, 256);
-    write_double_table(fp, "_rand_normal_w", wi, 256);
-    write_double_table(fp, "_rand_normal_f", fi, 256);
-    fclose(fp);
+    f = fopen("normal_tab.c", "w");
+    assert(f);
+    write_header(f);
+    write_uns_table(f, "_rand_normal_k", ki, 256);
+    write_double_table(f, "_rand_normal_w", wi, 256);
+    write_double_table(f, "_rand_normal_f", fi, 256);
+    fclose(f);
 
-    fp = fopen("exponential_tab.c", "w");
-    assert(fp);
-    write_header(fp);
-    write_uns_table(fp, "_rand_exponential_k", ke, 256);
-    write_double_table(fp, "_rand_exponential_w", we, 256);
-    write_double_table(fp, "_rand_exponential_f", fe, 256);
-    fclose(fp);
+    f = fopen("exponential_tab.c", "w");
+    assert(f);
+    write_header(f);
+    write_uns_table(f, "_rand_exponential_k", ke, 256);
+    write_double_table(f, "_rand_exponential_w", we, 256);
+    write_double_table(f, "_rand_exponential_f", fe, 256);
+    fclose(f);
+
+    f = fopen("polynomial_tab.c", "w");
+    assert(f);
+    write_header(f);
+    write_uns_table(f, "_rand_polynomial_k", kp, 256);
+    write_double_table(f, "_rand_polynomial_w", wp, 256);
+    write_double_table(f, "_rand_polynomial_f", fp, 256);
+    fclose(f);
 
     return 0;
 }

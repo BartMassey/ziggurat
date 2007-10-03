@@ -8,8 +8,9 @@ DESTDIR = /local
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
-TABS = normal_tab.c exponential_tab.c
-DOBJS = normal.o exponential.o normal_tab.o exponential_tab.o
+TABS = normal_tab.c exponential_tab.c polynomial_tab.c
+DOBJS = normal.o exponential.o polynomial.o \
+        normal_tab.o exponential_tab.o polynomial_tab.o
 OBJS = random.o random_compat.o $(DOBJS)
 
 librandom.a: $(OBJS)

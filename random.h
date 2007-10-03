@@ -92,4 +92,20 @@ static inline double exponential(void) {
     return _rand_exponential(r);
 }
 
+extern double _rand_polynomial_w[256];
+extern uint32_t _rand_polynomial_k[256];
+
+extern double _rand_polynomial(uint32_t r, int n);
+
+/* Return a variate with distribution (1 - x)**n, where
+   n >= 50 */
+static inline double polynomial(int n) {
+    uint32_t r = rand32();
+    const int idx = (int)(r & 0xFF);
+    const double x = r * _rand_polynomial_w[idx];
+    if (r < _rand_polynomial_k[idx])
+	return x;   /* A large percentage of the time we return here 1st try */
+    return _rand_polynomial(r, n);
+}
+
 #endif
