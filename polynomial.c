@@ -48,16 +48,17 @@ double _rand_polynomial (uint32_t r, int n)
       /* XXX we recompute some things here to clean up the inline case */
       const int idx = (int)(r & 0xFF);
       const double x = r * _rand_polynomial_w[idx];
+      const double px = PN * x / n;
       double y, y1;
       if (r < _rand_polynomial_k[idx])
-	  return x / n;
-      y1 = _rand_polynomial_f[idx];
-      if (idx == 0xFF)
-	  y = 0;
+	  return px;
+      if (idx == 0)
+	  y1 = 1;
       else
-	  y = _rand_polynomial_f[idx + 1];
-      if ((y1 - y) * uniform() + y < pow(1 - PN * x / n, n))
-	  return x / n;
+	  y1 = _rand_polynomial_f[idx - 1];
+      y = _rand_polynomial_f[idx];
+      if ((y1 - y) * uniform() + y < pow(1 - px, n))
+	  return px;
       r = rand32();
     }
 }

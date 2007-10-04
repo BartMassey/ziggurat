@@ -107,7 +107,7 @@ static inline double polynomial(int n) {
     const int idx = (int)(r & 0xFF);
     /* A large percentage of the time we return here 1st try :-) */
     if (r < _rand_polynomial_k[idx])
-	return r * _rand_polynomial_w[idx] / n;
+	return pn * r * _rand_polynomial_w[idx] / n;
     return _rand_polynomial(r, n);
 }
 
