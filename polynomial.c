@@ -50,14 +50,14 @@ double _rand_polynomial (uint32_t r, int n)
       const double x = r * _rand_polynomial_w[idx];
       double y, y1;
       if (r < _rand_polynomial_k[idx])
-	  return n * x;
+	  return x / n;
       y1 = _rand_polynomial_f[idx];
       if (idx == 0xFF)
 	  y = 0;
       else
 	  y = _rand_polynomial_f[idx + 1];
       if ((y1 - y) * uniform() + y < pow(1 - PN * x / n, n))
-	  return n * x;
+	  return x / n;
       r = rand32();
     }
 }

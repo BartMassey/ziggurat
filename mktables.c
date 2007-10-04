@@ -50,15 +50,16 @@ static double wi[256], we[256], wp[256];
 static uint32_t ki[256], ke[256], kp[256];
 
 static double polynomial_advance(double x0) {
-    double A = (1 - exp(-1)) / 256;
+    double A = (1 - exp(-PN)) / 256;
     double dx = 0.5;
     double x = x0;
     while(1) {
 	double x1 = x + dx;
-	double a;
-	if (x1 == x)
+	double a = (x1 - x0) * (exp(-PN * x0) - exp(-PN * x1));
+	if (x1 == x) {
+	    printf("%g\n", a);
 	    return x;
-	a = (x1 - x0) * (exp(-PN * x0) - exp(-PN * x1));
+	}
 	if (a <= A)
 	    x = x1;
 	dx *= 0.5;
@@ -135,9 +136,9 @@ create_ziggurat_tables (void)
       x = polynomial_advance(x1);
       if (i == 255)
 	  x = 1;
-      kp[i] = (uint32_t)(floor(PN * (1 - exp(-x1 / PN)) / x * PMANTISSA ));
-      wp[i] = x / (PMANTISSA * PN);
-      fp[i] = exp(-x1);
+      kp[i] = (uint32_t)(floor((1 - exp(-x1)) / x * PMANTISSA ));
+      wp[i] = x / PN / PMANTISSA;
+      fp[i] = exp(-PN * x1);
       x1 = x;
     }
 }
