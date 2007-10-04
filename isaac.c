@@ -118,13 +118,15 @@ int main()
   uint32_t i, j;
   randctx ctx;
   ctx.randa = ctx.randb = ctx.randc = 0;
-  for (i = 0; i < 256; i++)
+  if (_RANDSIZL != 8)
+    fprintf(stderr, "warning: unexpected _RANDSIZL %d\n", _RANDSIZL);
+  for (i = 0; i < _RANDSIZ; i++)
     ctx.randrsl[i] = 0;
   isaac_init(&ctx, 1);
   for (i=0; i<2; ++i)
   {
     isaac(&ctx);
-    for (j=0; j<256; ++j)
+    for (j=0; j<_RANDSIZ; ++j)
     {
       printf("%.8lx",ctx.randrsl[j]);
       if ((j&7)==7) printf("\n");

@@ -16,7 +16,7 @@ MODIFIED:
 
 #include <stdint.h>
 
-#define _RANDSIZL   4   /* I recommend 8 for crypto, 4 for simulations */
+#define _RANDSIZL   8   /* I recommend 8 for crypto, 4 for simulations */
 #define _RANDSIZ    (1<<_RANDSIZL)
 
 /* context of random number generator */
