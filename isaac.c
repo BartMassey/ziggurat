@@ -27,7 +27,7 @@ void isaac(randctx *ctx) {
    uint32_t a, b, x, y;
    uint32_t *m, *mm, *m2, *r, *mend;
    mm = ctx->randmem; r = ctx->randrsl;
-   a = ctx->randa; b = ctx->randb + (++ctx->randc);
+   a = ctx->randa; b = ctx->randb + (++(ctx->randc));
    for (m = mm, mend = m2 = m + _RANDSIZ / 2; m < mend; )
    {
      RNGSTEP(a << 13);
@@ -46,19 +46,16 @@ void isaac(randctx *ctx) {
 }
 
 
-static inline void mix(uint32_t a, uint32_t b,
-		       uint32_t c, uint32_t d,
-		       uint32_t e, uint32_t f,
-		       uint32_t g, uint32_t h) {
-   a ^= b << 11; d += a; b += c;
-   b ^= c >> 2;  e += b; c += d;
-   c ^= d << 8;  f += c; d += e;
-   d ^= e >> 16; g += d; e += f;
-   e ^= f << 10; h += e; f += g;
-   f ^= g >> 4;  a += f; g += h;
-   g ^= h << 8;  b += g; h += a;
-   h ^= a >> 9;  c += h; a += b;
-}
+/* XXX requires calling in very specific context below. */
+#define MIX do { \
+   a ^= b << 11; d += a; b += c; \
+   b ^= c >> 2;  e += b; c += d; \
+   c ^= d << 8;  f += c; d += e; \
+   d ^= e >> 16; g += d; e += f; \
+   e ^= f << 10; h += e; f += g; \
+   f ^= g >> 4;  a += f; g += h; \
+   g ^= h << 8;  b += g; h += a; \
+   h ^= a >> 9;  c += h; a += b; } while(0)
 
 /* if (flag==TRUE), then use the contents of randrsl[] to initialize mm[]. */
 void isaac_init(randctx *ctx, int flag) {
@@ -71,7 +68,7 @@ void isaac_init(randctx *ctx, int flag) {
    a = b = c = d = e = f = g = h = 0x9e3779b9;  /* the golden ratio */
 
    for (i = 0; i < 4; i++)          /* scramble it */
-     mix(a, b, c, d, e, f, g, h);
+     MIX;
 
    if (flag)
    {
@@ -80,7 +77,7 @@ void isaac_init(randctx *ctx, int flag) {
      {
        a+=r[i    ]; b += r[i + 1]; c += r[i + 2]; d += r[i + 3];
        e+=r[i + 4]; f += r[i + 5]; g += r[i + 6]; h += r[i + 7];
-       mix(a, b, c, d, e, f, g, h);
+       MIX;
        m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
        m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
@@ -89,7 +86,7 @@ void isaac_init(randctx *ctx, int flag) {
      {
        a+=m[i    ]; b += m[i + 1]; c += m[i + 2]; d += m[i + 3];
        e+=m[i + 4]; f += m[i + 5]; g += m[i + 6]; h += m[i + 7];
-       mix(a, b, c, d, e, f, g, h);
+       MIX;
        m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
        m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
@@ -99,7 +96,7 @@ void isaac_init(randctx *ctx, int flag) {
      /* fill in m[] with messy stuff */
      for (i = 0; i < _RANDSIZ; i += 8)
      {
-       mix(a, b, c, d, e, f, g, h);
+       MIX;
        m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
        m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
      }
