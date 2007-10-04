@@ -89,7 +89,7 @@ extern uint32_t _rand_normal_k[256];
 extern double _rand_normal(uint32_t r);
 
 static inline double uniform(void) {
-      return rand32() * (1.0 / 4294967294.9);
+      return rand32() * (1.0 / 4294967295.0);
 }
 
 static inline double normal(void) {
