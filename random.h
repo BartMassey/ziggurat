@@ -104,10 +104,10 @@ static inline double polynomial(int n) {
     if (n < pn)
 	return 1.0 - pow(uniform(), 1.0 / (n + 1));
     r = rand32();
-    const int idx = (int)(r & 0xFF);
-    /* A large percentage of the time we return here 1st try :-) */
+    int idx = (int)(r & 0xFF);
+    /* About 95% of the time we return here 1st try. */
     if (r < _rand_polynomial_k[idx])
-	return pn * r * _rand_polynomial_w[idx] / n;
+	return (double)pn * (double)r * _rand_polynomial_w[idx] / n;
     return _rand_polynomial(r, n);
 }
 

@@ -41,14 +41,18 @@
 
 extern double _rand_polynomial_f[ZIGGURAT_TABLE_SIZE];
 
+int _rand_polynomial_calls = 0;
+int _rand_polynomial_steps = 0;
+
 double _rand_polynomial (uint32_t r, int n)
 {
+  _rand_polynomial_calls++;
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
-      const int idx = (int)(r & 0xFF);
-      const double x = r * _rand_polynomial_w[idx];
-      const double px = PN * x / n;
+      int idx = (int)(r & 0xFF);
+      double x = r * _rand_polynomial_w[idx];
+      double px = PN * x / n;
       double y, y1;
       if (r < _rand_polynomial_k[idx])
 	  return px;
@@ -60,5 +64,6 @@ double _rand_polynomial (uint32_t r, int n)
       if ((y1 - y) * uniform() + y < pow(1 - px, n))
 	  return px;
       r = rand32();
+      _rand_polynomial_steps++;
     }
 }

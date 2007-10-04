@@ -21,15 +21,15 @@ static double polynomial_advance(double A, double x0) {
 int main(void) {
     double da = 0.5;
     double a = 1.0;
+    double a0 = 0;
+    double x;
+    int i;
     while(1) {
 	double a1 = a - da;
-	double x = 0;
-	int i;
+	x = 0;
 	da *= 0.5;
-	if (a1 == a) {
-	    printf("%.23g\n", a);
-	    exit(0);
-	}
+	if (a1 == a)
+	    break;
 	for (i = 0; i < 256; i++) {
 	    x = polynomial_advance(a1, x);
 	    if (x > 1) {
@@ -38,5 +38,14 @@ int main(void) {
 	    }
 	}
     }
-    abort();
+    printf("%.14g\n", a);
+    x = 0;
+    for (i = 0; i < 256; i++) {
+	double x1 = polynomial_advance(a, x);
+	double a1 = (x1 - x) * (exp(-PN * x) - exp(-PN * x1));
+	a0 += a1;
+	x = x1;
+    }
+    printf("%.14g %.14g %.14g\n", a * 256, a0, x);
+    exit(0);
 }

@@ -135,7 +135,7 @@ create_ziggurat_tables (void)
 	  x = 1;
       kp[i] = (uint32_t)(floor((1 - exp(-x1)) / x * PMANTISSA));
       wp[i] = x / PMANTISSA;
-      fp[i] = exp(-PN * x1);
+      fp[i] = exp(-PN * x);
       x1 = x;
     }
 }
