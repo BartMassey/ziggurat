@@ -45,6 +45,9 @@
 # define EMANTISSA 4294967296.0 /* 32 bit mantissa */
 # define PMANTISSA 4294967296.0 /* 32 bit mantissa */
 
+/* XXX must match random.h */
+#define PN 50
+
 static double fi[256], fe[256], fp[256];
 static double wi[256], we[256], wp[256];
 static uint32_t ki[256], ke[256], kp[256];
@@ -135,7 +138,7 @@ create_ziggurat_tables (void)
       x = polynomial_advance(x1);
       if (i == 255)
 	x = 1;
-      kp[i] = (uint32_t)(floor((1 - exp(-x1 / PN)) / x * PMANTISSA ));
+      kp[i] = (uint32_t)(floor(PN * (1 - exp(-x1 / PN)) / x * PMANTISSA ));
       wp[i] = x / PMANTISSA;
       fp[i] = exp(-x1);
       x1 = x;

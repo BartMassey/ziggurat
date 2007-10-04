@@ -99,7 +99,8 @@ extern double _rand_polynomial(uint32_t r, int n);
 
 /* Return a variate with distribution (1 - x)**n */
 static inline double polynomial(int n) {
-    if (n < 50)
+    const int pn = 50;   /* XXX must match mktables.c */
+    if (n < pn)
 	return 1.0 - pow(uniform(), 1.0 / (n + 1));
     uint32_t r = rand32();
     const int idx = (int)(r & 0xFF);
