@@ -56,7 +56,7 @@ double _rand_polynomial (uint32_t r, int n)
 	  y = 0;
       else
 	  y = _rand_polynomial_f[idx + 1];
-      if ((y1 - y) * uniform() + y < pow(1 - x / n, n))
+      if ((y1 - y) * uniform() + y < pow(1 - PN * x / n, n))
 	  return n * x;
       r = rand32();
     }
