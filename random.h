@@ -68,9 +68,9 @@ static inline double normal(void) {
       const uint32_t r = rand32();
       const uint32_t rabs = r & 0x7fffffffUL;
       const int idx = r & 0xFF;
-      const double x = ((int32_t)r) * _rand_normal_w[idx];
+      /* 99.3% of the time we return here 1st try */
       if (rabs < _rand_normal_k[idx])
-	  return x;   /* 99.3% of the time we return here 1st try */
+	  return (int32_t)r * _rand_normal_w[idx];
       return _rand_normal(r);
 }
 
@@ -86,9 +86,9 @@ extern double _rand_exponential(uint32_t r);
 static inline double exponential(void) {
     uint32_t r = rand32();
     const int idx = (int)(r & 0xFF);
-    const double x = r * _rand_exponential_w[idx];
+    /* 98.9% of the time we return here 1st try */
     if (r < _rand_exponential_k[idx])
-	return x;   /* 98.9% of the time we return here 1st try */
+	return r * _rand_exponential_w[idx];
     return _rand_exponential(r);
 }
 
@@ -104,9 +104,9 @@ static inline double polynomial(int n) {
 	return 1.0 - pow(uniform(), 1.0 / (n + 1));
     uint32_t r = rand32();
     const int idx = (int)(r & 0xFF);
-    const double x = r * _rand_polynomial_w[idx];
+    /* A large percentage of the time we return here 1st try :-) */
     if (r < _rand_polynomial_k[idx])
-	return n * x;   /* A large percentage of the time we return here 1st try */
+	return n * r * _rand_polynomial_w[idx];
     return _rand_polynomial(r, n);
 }
 
