@@ -135,7 +135,7 @@ create_ziggurat_tables (void)
       x = polynomial_advance(x1);
       if (i == 255)
 	x = 1;
-      kp[i] = (uint32_t)(floor((1 - exp(-x1 / 50)) / x * PMANTISSA ));
+      kp[i] = (uint32_t)(floor((1 - exp(-x1 / PN)) / x * PMANTISSA ));
       wp[i] = x / PMANTISSA;
       fp[i] = exp(-x1);
       x1 = x;
