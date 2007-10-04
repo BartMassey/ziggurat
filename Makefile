@@ -5,6 +5,8 @@
 # terms.
 #
 DESTDIR = /local
+INCDIR = $(DESTDIR)/include/ziggurat
+LIBDIR = $(DESTDIR)/lib/ziggurat
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
@@ -37,10 +39,10 @@ test: test.c random.h librandom.a
 	$(CC) $(CFLAGS) -o test test.c librandom.a $(LIBS)
 
 install: librandom.a
-	-mkdir $(DESTDIR)/include/ziggurat
-	cp random.h $(DESTDIR)/include/ziggurat/
-	-mkdir $(DESTDIR)/lib/ziggurat
-	cp librandom.a $(DESTDIR)/lib/ziggurat/
+	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
+	cp random.h $(INCDIR)
+	-[ -d $(LIBDIR) ] || mkdir $(LIBDIR)
+	cp librandom.a $(LIBDIR)
 
 clean:
 	-rm -f $(OBJS) librandom.a $(TABS) mktables test.dat test
