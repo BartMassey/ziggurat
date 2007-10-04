@@ -40,15 +40,44 @@
 #include <stdint.h>
 #include <math.h>
 
-extern unsigned long _rand32_state;
+/* ISAAC definitions */
 
-/* SHR3 generator */
+#define _RAND_SIZL   8   /* I recommend 8 for crypto, 4 for simulations */
+#define _RAND_SIZ    (1<<_RAND_SIZL)
+
+/* context of random number generator */
+struct _rand_ctx
+{
+  uint32_t randcnt;
+  uint32_t randrsl[_RAND_SIZ];
+  uint32_t randmem[_RAND_SIZ];
+  uint32_t randa;
+  uint32_t randb;
+  uint32_t randc;
+};
+typedef  struct _rand_ctx  _rand_ctx;
+
+/* If (flag==TRUE), then use the contents of
+   randrsl[0.._RAND_SIZ-1] as the seed. */
+extern void _rand_isaac_init(_rand_ctx *r, int flag);
+extern void _rand_isaac(_rand_ctx *r);
+
+extern _rand_ctx _rand_ctx_default;
+
+/* Call rand32r(r) to retrieve a single 32-bit random value
+   from context r. */
+static inline uint32_t rand32r(_rand_ctx *r) {
+    if (r->randcnt == 0) {
+	_rand_isaac(r);
+	r->randcnt = _RAND_SIZ;
+    }
+    return r->randrsl[--r->randcnt];
+}
+
+/* Call rand32() to retrieve a single 32-bit random value
+   from the "default context". */
 static inline uint32_t rand32(void) {
-    unsigned long state0 = _rand32_state;
-    _rand32_state ^= _rand32_state << 13;
-    _rand32_state ^= _rand32_state >> 17;
-    _rand32_state ^= _rand32_state << 5;
-    return state0 + _rand32_state;
+    return rand32r(&_rand_ctx_default);
 }
 
 extern long random(void);

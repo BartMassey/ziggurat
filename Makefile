@@ -13,7 +13,7 @@ LIBS = -lm
 TABS = normal_tab.c exponential_tab.c polynomial_tab.c
 DOBJS = normal.o exponential.o polynomial.o \
         normal_tab.o exponential_tab.o polynomial_tab.o
-OBJS = random.o random_compat.o $(DOBJS)
+OBJS = random.o isaac.o $(DOBJS)
 
 librandom.a: $(OBJS)
 	$(AR) crv librandom.a $(OBJS)
