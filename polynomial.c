@@ -60,7 +60,7 @@ double _rand_polynomial (uint32_t r, int idx, int n)
       else
 	  y1 = _rand_polynomial_f[idx - 1];
       y = _rand_polynomial_f[idx];
-      if ((y1 - y) * uniform() + y < pow(1 - px, n))
+      if ((y1 - y) * uniform() + y <= pow(1 - x, n))
 	  return px;
       r = rand32();
       idx = (r ^ _rand_last) & 0xFF;

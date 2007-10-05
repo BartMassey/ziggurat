@@ -2,7 +2,7 @@
 #include <math.h>
 #include "random.h"
 
-#define NV 100000000
+#define NV 10000000
 float variate[NV];
 
 #define NB 100
