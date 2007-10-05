@@ -47,7 +47,8 @@
 
 static double fi[256], fe[256], fp[256];
 static double wi[256], we[256], wp[256];
-static uint32_t ki[256], ke[256], kp[256];
+static uint32_t ki[256], ke[256];
+static double kp[256];
 
 static double polynomial_advance(double x0) {
     double dx = 0.5;
@@ -90,7 +91,7 @@ create_ziggurat_tables (void)
        * need inverse operator of y = exp(-0.5*x*x) -> x = sqrt(-2*ln(y))
        */
       x = sqrt(-2. * log(NOR_SECTION_AREA / x1 + fi[i+1]));
-      ki[i+1] = (uint32_t)(floor(x / x1 * NMANTISSA));
+      ki[i+1] = floor(x / x1 * NMANTISSA);
       wi[i] = x / NMANTISSA;
       fi[i] = exp (-0.5 * x * x);
       x1 = x;
@@ -118,7 +119,7 @@ create_ziggurat_tables (void)
        * need inverse operator of y = exp(-x) -> x = -ln(y)
        */
       x = - log(EXP_SECTION_AREA / x1 + fe[i+1]);
-      ke[i+1] = (uint32_t)(floor(x / x1 * EMANTISSA));
+      ke[i+1] = floor(x / x1 * EMANTISSA);
       we[i] = x / EMANTISSA;
       fe[i] = exp (-x);
       x1 = x;
@@ -131,10 +132,8 @@ create_ziggurat_tables (void)
   for (i = 0; i < 256; i++)
     {
       x = polynomial_advance(x1);
-      if (i == 255)
-	  x = 1;
-      kp[i] = (uint32_t)(floor((1 - exp(-x1)) / x * PMANTISSA));
-      wp[i] = x / PMANTISSA;
+      kp[i] = 1 - exp(-x1);
+      wp[i] = x;
       fp[i] = exp(-PN * x);
       x1 = x;
     }
@@ -184,7 +183,7 @@ int main(void) {
     f = fopen("polynomial_tab.c", "w");
     assert(f);
     write_header(f);
-    write_uns_table(f, "_rand_polynomial_k", kp, 256);
+    write_double_table(f, "_rand_polynomial_k", kp, 256);
     write_double_table(f, "_rand_polynomial_w", wp, 256);
     write_double_table(f, "_rand_polynomial_f", fp, 256);
     fclose(f);

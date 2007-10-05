@@ -68,6 +68,11 @@ extern _rand_ctx _rand_ctx_default;
    from context r. */
 static inline uint32_t rand32r(_rand_ctx *r) {
     if (r->randcnt == 0) {
+	static int inited = 0;
+	if (!inited) {
+	    srandom(17);
+	    inited = 1;
+	}
 	_rand_isaac(r);
 	r->randcnt = _RAND_SIZ;
     }
@@ -89,8 +94,8 @@ extern uint32_t _rand_normal_k[256];
 extern double _rand_normal(uint32_t r, int idx);
 
 static inline double uniform(void) {
-    const double scale = 1.0 / 4294967295.0;
-    return rand32() * scale;
+    const double scale = 5.42101086242752e-20;
+    return (4294967296.0 * rand32() + rand32()) * scale;
 }
 
 extern uint32_t _rand_last;
@@ -127,23 +132,23 @@ static inline double exponential(void) {
 }
 
 extern double _rand_polynomial_w[256];
-extern uint32_t _rand_polynomial_k[256];
+extern double _rand_polynomial_k[256];
 
-extern double _rand_polynomial(uint32_t r, int idx, int n);
+extern double _rand_polynomial(double x, int idx, int n);
 
 /* Return a variate with distribution (1 - x)**n */
 static inline double polynomial(int n) {
     const int pn = 50;   /* XXX must match PN in zigconsts.h */
-    uint32_t r;
+    double x;
+    int idx;
     if (n < pn)
 	return 1.0 - pow(uniform(), 1.0 / (n + 1));
-    r = rand32();
-    int idx = (r ^ _rand_last) & 0xFF;
-    _rand_last = r;
+    idx = rand32() & 0xFF;
+    x =  uniform() * _rand_polynomial_w[idx];
     /* About 95% of the time we return here 1st try. */
-    if (r < _rand_polynomial_k[idx])
-	return (double)pn * (double)r * _rand_polynomial_w[idx] / n;
-    return _rand_polynomial(r, idx, n);
+    if (x < _rand_polynomial_k[idx])
+	return pn * x / n;
+    return _rand_polynomial(x, idx, n);
 }
 
 #endif
