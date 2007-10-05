@@ -8,7 +8,7 @@ float variate[NV];
 #define NB 100
 int bin[NB];
 
-#define PN 50
+#define PN 5000
 
 int main(void) {
     int i;
