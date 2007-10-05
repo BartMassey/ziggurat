@@ -105,13 +105,12 @@ extern double _rand_normal_f[ZIGGURAT_TABLE_SIZE];
  * distribution is exp(-0.5*x*x)
  */
 
-double _rand_normal(uint32_t r)
+double _rand_normal(uint32_t r, int idx)
 {
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
       const uint32_t rabs = r & 0x7fffffffUL;
-      const int idx = r & 0xFF;
       const double x = ((int32_t)r) * _rand_normal_w[idx];
       if (rabs < _rand_normal_k[idx])
 	  return x;   /* 99.3% of the time we return here 1st try */
@@ -140,6 +139,8 @@ double _rand_normal(uint32_t r)
 	       _rand_normal_f[idx] < exp(-0.5*x*x))
 	return x;
       r = rand32();
+      idx = (r ^ _rand_last) & 0xFF;
+      _rand_last = r;
     }
 }
 

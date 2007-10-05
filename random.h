@@ -86,21 +86,25 @@ extern void srandom(unsigned seed);
 extern double _rand_normal_w[256];
 extern uint32_t _rand_normal_k[256];
 
-extern double _rand_normal(uint32_t r);
+extern double _rand_normal(uint32_t r, int idx);
 
 static inline double uniform(void) {
-      return rand32() * (1.0 / 4294967295.0);
+    const double scale = 1.0 / 4294967295.0;
+    return rand32() * scale;
 }
 
+extern uint32_t _rand_last;
+
 static inline double normal(void) {
-      /* 32-bit mantissa */
-      const uint32_t r = rand32();
-      const uint32_t rabs = r & 0x7fffffffUL;
-      const int idx = r & 0xFF;
-      /* 99.3% of the time we return here 1st try */
-      if (rabs < _rand_normal_k[idx])
-	  return (int32_t)r * _rand_normal_w[idx];
-      return _rand_normal(r);
+    /* 32-bit mantissa */
+    const uint32_t r = rand32();
+    const uint32_t rabs = r & 0x7fffffffUL;
+    const int idx = (r ^ _rand_last) & 0xFF;
+    _rand_last = r;
+    /* 99.3% of the time we return here 1st try */
+    if (rabs < _rand_normal_k[idx])
+	return (int32_t)r * _rand_normal_w[idx];
+    return _rand_normal(r, idx);
 }
 
 static inline double gaussian(double sigma) {
@@ -110,21 +114,22 @@ static inline double gaussian(double sigma) {
 extern double _rand_exponential_w[256];
 extern uint32_t _rand_exponential_k[256];
 
-extern double _rand_exponential(uint32_t r);
+extern double _rand_exponential(uint32_t r, int idx);
 
 static inline double exponential(void) {
     uint32_t r = rand32();
-    const int idx = (int)(r & 0xFF);
+    int idx = (r ^ _rand_last) & 0xFF;
+    _rand_last = r;
     /* 98.9% of the time we return here 1st try */
     if (r < _rand_exponential_k[idx])
 	return r * _rand_exponential_w[idx];
-    return _rand_exponential(r);
+    return _rand_exponential(r, idx);
 }
 
 extern double _rand_polynomial_w[256];
 extern uint32_t _rand_polynomial_k[256];
 
-extern double _rand_polynomial(uint32_t r, int n);
+extern double _rand_polynomial(uint32_t r, int idx, int n);
 
 /* Return a variate with distribution (1 - x)**n */
 static inline double polynomial(int n) {
@@ -133,11 +138,12 @@ static inline double polynomial(int n) {
     if (n < pn)
 	return 1.0 - pow(uniform(), 1.0 / (n + 1));
     r = rand32();
-    int idx = (int)(r & 0xFF);
+    int idx = (r ^ _rand_last) & 0xFF;
+    _rand_last = r;
     /* About 95% of the time we return here 1st try. */
     if (r < _rand_polynomial_k[idx])
 	return (double)pn * (double)r * _rand_polynomial_w[idx] / n;
-    return _rand_polynomial(r, n);
+    return _rand_polynomial(r, idx, n);
 }
 
 #endif

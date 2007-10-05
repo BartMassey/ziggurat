@@ -41,12 +41,11 @@
 
 extern double _rand_exponential_f[ZIGGURAT_TABLE_SIZE];
 
-double _rand_exponential (uint32_t r)
+double _rand_exponential (uint32_t r, int idx)
 {
   while (1)
     {
       /* XXX we recompute some things here to clean up the inline case */
-      const int idx = (int)(r & 0xFF);
       const double x = r * _rand_exponential_w[idx];
       if (r < _rand_exponential_k[idx])
 	return x;
@@ -64,5 +63,7 @@ double _rand_exponential (uint32_t r)
 	       _rand_exponential_f[idx] < exp(-x))
 	return x;
       r = rand32();
+      idx = (r ^ _rand_last) & 0xFF;
+      _rand_last = r;
     }
 }
