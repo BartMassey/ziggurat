@@ -29,14 +29,20 @@ $(DOBJS): zigconsts.h
 
 $(OBJS): random.h
 
-check: normaltest.dat
-	gnuplot normaltest.gnuplot
+check: normaltest.dat polytest.dat test.gnuplot
+	gnuplot test.gnuplot
 
 normaltest.dat: normaltest
 	time ./normaltest > normaltest.dat
 
 normaltest: normaltest.c random.h librandom.a
 	$(CC) $(CFLAGS) -o normaltest normaltest.c librandom.a $(LIBS)
+
+polytest.dat: polytest
+	time ./polytest > polytest.dat
+
+polytest: polytest.c random.h librandom.a
+	$(CC) $(CFLAGS) -o polytest polytest.c librandom.a $(LIBS)
 
 install: librandom.a
 	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
