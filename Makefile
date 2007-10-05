@@ -29,14 +29,14 @@ $(DOBJS): zigconsts.h
 
 $(OBJS): random.h
 
-check: test.dat
-	gnuplot test.gnuplot
+check: normaltest.dat
+	gnuplot normaltest.gnuplot
 
-test.dat: test
-	time ./test > test.dat
+normaltest.dat: normaltest
+	time ./normaltest > normaltest.dat
 
-test: test.c random.h librandom.a
-	$(CC) $(CFLAGS) -o test test.c librandom.a $(LIBS)
+normaltest: normaltest.c random.h librandom.a
+	$(CC) $(CFLAGS) -o normaltest normaltest.c librandom.a $(LIBS)
 
 install: librandom.a
 	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
@@ -45,4 +45,4 @@ install: librandom.a
 	cp librandom.a $(LIBDIR)
 
 clean:
-	-rm -f $(OBJS) librandom.a $(TABS) mktables test.dat test
+	-rm -f $(OBJS) librandom.a $(TABS) mktables normaltest.dat normaltest
