@@ -44,6 +44,9 @@ polytest.dat: polytest
 polytest: polytest.c random.h librandom.a
 	$(CC) $(CFLAGS) -o polytest polytest.c librandom.a $(LIBS)
 
+polyzig: polyzig.c
+	$(CC) $(CFLAGS) -o polyzig polyzig.c $(LIBS)
+
 install: librandom.a
 	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
 	cp random.h $(INCDIR)

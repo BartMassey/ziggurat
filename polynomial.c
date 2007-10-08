@@ -49,8 +49,6 @@ double _rand_polynomial (double x, int idx, int n)
   _rand_polynomial_calls++;
   while (1)
     {
-      /* XXX we recompute some things here to clean up the inline case */
-      double px = PN * x / n;
       double y, y1;
       if (idx == 0)
 	  y1 = 1;
@@ -58,11 +56,11 @@ double _rand_polynomial (double x, int idx, int n)
 	  y1 = _rand_polynomial_f[idx - 1];
       y = _rand_polynomial_f[idx];
       if ((y1 - y) * uniform() + y <= pow(1 - x, n))
-	  return px;
+	  return PN * x / n;
       _rand_polynomial_steps++;
       idx = rand32() & 0xFF;
       x = uniform() * _rand_polynomial_w[idx];
       if (x < _rand_polynomial_k[idx])
-	  return px;
+	  return PN * x / n;
     }
 }

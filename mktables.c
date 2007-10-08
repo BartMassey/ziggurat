@@ -129,7 +129,7 @@ create_ziggurat_tables (void)
   /* Zigurrat tables for the polynomial distribution. */
   /* XXX Goes forward instead of backward here, just gratuitously. */
   x1 = 0;
-  for (i = 0; i < 256; i++)
+  for (i = 0; i < 255; i++)
     {
       x = polynomial_advance(x1);
       kp[i] = 1 - exp(-x1);
@@ -137,6 +137,9 @@ create_ziggurat_tables (void)
       fp[i] = exp(-PN * x);
       x1 = x;
     }
+  kp[255] = 1 - exp(-1);
+  wp[255] = 1;
+  fp[255] = 0;
 }
 
 void write_double_table(FILE *fp, char *name, double *t, int nt) {

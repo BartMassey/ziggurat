@@ -3,17 +3,17 @@
 #include "random.h"
 
 #define NV 10000000
-float variate[NV];
+double variate[NV];
 
-#define NB 100
+#define NB 200
 int bin[NB];
 
-#define PN 5000
+#define PN 51
 
 int main(void) {
     int i;
-    float maxv = 0;
-    float binwidth;
+    double maxv = 0;
+    double binwidth;
     for (i = 0; i < NV; i++)
 	 variate[i] = polynomial(PN);
     for (i = 0; i < NV; i++)
@@ -25,9 +25,11 @@ int main(void) {
 	bin[j]++;
     }
     for (i = 0; i < NB; i++) {
-	 float x = binwidth * (i + 0.5);
-	 printf("%f %d %f\n", x, bin[i],
-		(double)NV * (PN + 1) * pow(1 - binwidth * i, PN) * binwidth);
+	 double x = binwidth * (i + 0.5);
+	 double x0 = binwidth * i;
+	 double x1 = x0 + binwidth;
+	 double a = pow(1 - x0, PN + 1) - pow(1-x1, PN + 1);
+	 printf("%g %d %g\n", x, bin[i], NV * a);
     }
     return 0;
 }
