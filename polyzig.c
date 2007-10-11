@@ -4,7 +4,7 @@
 #include "zigconsts.h"
 
 static inline double area(double x0, double x1) {
-    return (x1 - x0) * (exp(-PN * x0) - exp(-PN * x1));
+    return x1 * (exp(-PN * x0) - exp(-PN * x1));
 }
 
 static double polynomial_advance(double A, double x0) {
@@ -52,7 +52,7 @@ int main(void) {
     x = 0;
     for (i = 0; i < 255; i++) {
 	double x1 = polynomial_advance(a, x);
-	double a1 = (x1 - x) * (exp(-PN * x) - exp(-PN * x1));
+	double a1 = area(x, x1);
 	a0 += a1;
 	x = x1;
     }

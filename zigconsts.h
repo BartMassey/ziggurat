@@ -45,4 +45,4 @@
 
 /* XXX must match pn in random.h */
 #define PN 50
-#define ZIGGURAT_POL_SECTION_AREA 1.2280538489159e-06
+#define ZIGGURAT_POL_SECTION_AREA 7.9277910491253e-05

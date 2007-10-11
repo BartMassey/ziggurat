@@ -55,7 +55,7 @@ static double polynomial_advance(double x0) {
     double x = x0;
     while(1) {
 	double x1 = x + dx;
-	double a = (x1 - x0) * (exp(-PN * x0) - exp(-PN * x1));
+	double a = x1 * (exp(-PN * x0) - exp(-PN * x1));
 	if (x1 == x)
 	    return x;
 	if (a <= ZIGGURAT_POL_SECTION_AREA)
