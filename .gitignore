@@ -1,0 +1,6 @@
+*.o
+*.a
+normal_tab.c
+polynomial_tab.c
+exponential_tab.c
+mktables
