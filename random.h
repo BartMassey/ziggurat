@@ -64,13 +64,16 @@ extern void _rand_isaac(_rand_ctx *r);
 
 extern _rand_ctx _rand_ctx_default;
 
+extern long zrandom(void);
+extern void zsrandom(unsigned seed);
+
 /* Call rand32r(r) to retrieve a single 32-bit random value
    from context r. */
 static inline uint32_t rand32r(_rand_ctx *r) {
     if (r->randcnt == 0) {
 	static int inited = 0;
 	if (!inited) {
-	    srandom(17);
+	    zsrandom(17);
 	    inited = 1;
 	}
 	_rand_isaac(r);
@@ -84,9 +87,6 @@ static inline uint32_t rand32r(_rand_ctx *r) {
 static inline uint32_t rand32(void) {
     return rand32r(&_rand_ctx_default);
 }
-
-extern long random(void);
-extern void srandom(unsigned seed);
 
 extern double _rand_normal_w[256];
 extern uint32_t _rand_normal_k[256];
