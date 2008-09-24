@@ -54,4 +54,7 @@ install: librandom.a
 	cp librandom.a $(LIBDIR)
 
 clean:
-	-rm -f $(OBJS) librandom.a $(TABS) mktables normaltest.dat normaltest
+	-rm -f $(OBJS) librandom.a $(TABS) mktables \
+               normaltest.dat normaltest \
+               polytest.dat polytest \
+               polyzig
