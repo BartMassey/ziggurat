@@ -43,6 +43,6 @@
 #define ZIGGURAT_EXP_INV_R 0.129918765548341586
 #define EXP_SECTION_AREA 0.0039496598225815571993
 
-/* XXX must match pn in random.h */
+/* XXX must match pn in zrandom.h */
 #define PN 50
 #define ZIGGURAT_POL_SECTION_AREA 7.9277910491253e-05

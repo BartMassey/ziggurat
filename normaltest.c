@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#include "random.h"
+#include "zrandom.h"
 
 #define NV 10000000
 float variate[NV];

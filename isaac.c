@@ -9,7 +9,7 @@ MODIFIED:
   071004 Bart Massey <bart@cs.pdx.edu>: cleanups for inclusion in libziggurat
 ------------------------------------------------------------------------------
 */
-#include "random.h"
+#include "zrandom.h"
 
 inline static uint32_t ind(uint32_t *mm, uint32_t x) {
     return *(uint32_t *)((uint8_t *)mm + ((x) & ((_RAND_SIZ-1)<<2)));

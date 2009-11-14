@@ -4,9 +4,9 @@
 # Please see the file COPYING in this distribution for usage
 # terms.
 #
-DESTDIR = /local
-INCDIR = $(DESTDIR)/include/ziggurat
-LIBDIR = $(DESTDIR)/lib/ziggurat
+DESTDIR = /usr/local
+INCDIR = $(DESTDIR)/include
+LIBDIR = $(DESTDIR)/lib
 CC = gcc
 CFLAGS = -g -Wall -O4
 LIBS = -lm
@@ -15,9 +15,9 @@ DOBJS = normal.o exponential.o polynomial.o \
         normal_tab.o exponential_tab.o polynomial_tab.o
 OBJS = random.o isaac.o $(DOBJS)
 
-librandom.a: $(OBJS)
-	$(AR) crv librandom.a $(OBJS)
-	ranlib librandom.a
+libzrandom.a: $(OBJS)
+	$(AR) crv libzrandom.a $(OBJS)
+	ranlib libzrandom.a
 
 $(TABS): mktables
 	./mktables
@@ -27,7 +27,7 @@ mktables: mktables.c zigconsts.h
 
 $(DOBJS): zigconsts.h
 
-$(OBJS): random.h
+$(OBJS): zrandom.h
 
 check: normaltest.dat polytest.dat test.gnuplot
 	gnuplot test.gnuplot
@@ -35,26 +35,26 @@ check: normaltest.dat polytest.dat test.gnuplot
 normaltest.dat: normaltest
 	time ./normaltest > normaltest.dat
 
-normaltest: normaltest.c random.h librandom.a
-	$(CC) $(CFLAGS) -o normaltest normaltest.c librandom.a $(LIBS)
+normaltest: normaltest.c zrandom.h libzrandom.a
+	$(CC) $(CFLAGS) -o normaltest normaltest.c libzrandom.a $(LIBS)
 
 polytest.dat: polytest
 	time ./polytest > polytest.dat
 
-polytest: polytest.c random.h librandom.a
-	$(CC) $(CFLAGS) -o polytest polytest.c librandom.a $(LIBS)
+polytest: polytest.c zrandom.h libzrandom.a
+	$(CC) $(CFLAGS) -o polytest polytest.c libzrandom.a $(LIBS)
 
 polyzig: polyzig.c
 	$(CC) $(CFLAGS) -o polyzig polyzig.c $(LIBS)
 
-install: librandom.a
+install: libzrandom.a
 	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
-	cp random.h $(INCDIR)
+	cp zrandom.h $(INCDIR)/
 	-[ -d $(LIBDIR) ] || mkdir $(LIBDIR)
-	cp librandom.a $(LIBDIR)
+	cp libzrandom.a $(LIBDIR)/
 
 clean:
-	-rm -f $(OBJS) librandom.a $(TABS) mktables \
+	-rm -f $(OBJS) libzrandom.a $(TABS) mktables \
                normaltest.dat normaltest \
                polytest.dat polytest \
                polyzig

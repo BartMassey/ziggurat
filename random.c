@@ -1,4 +1,4 @@
-#include "random.h"
+#include "zrandom.h"
 
 _rand_ctx _rand_ctx_default;
 

@@ -39,7 +39,7 @@ GNU Octave.  I've optimized this code by ripping the
 Mersenne Twister back out and replacing it with the faster
 but not so good SHR3 generator Marsaglia and Tsang used
 originally, and changing doubles to doubles.  I've also split
-out the relevant stuff into inline functions in random.h,
+out the relevant stuff into inline functions in zrandom.h,
 and fixed up the interface.  I also ripped out the 64 bit
 code for clarity and portability.  The result should be
 reasonably fast for portable code, yet clearly legal for me
@@ -84,7 +84,7 @@ reason is just the use of the Mersenne Twister and not the inlining,
 so I'm not going to try and optimize further.  --David Bateman
 */
 
-#include "random.h"
+#include "zrandom.h"
 #include <math.h>
 #include "zigconsts.h"
 

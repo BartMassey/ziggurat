@@ -35,7 +35,7 @@
 
 /* Please see normal.c in this distribution for more information. */
 
-#include "random.h"
+#include "zrandom.h"
 #include <math.h>
 #include "zigconsts.h"
 
