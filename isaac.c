@@ -11,84 +11,83 @@ MODIFIED:
 */
 #include "zrandom.h"
 
-inline static uint32_t ind(uint32_t *mm, uint32_t x) {
-    return *(uint32_t *)((uint8_t *)mm + ((x) & ((_RAND_SIZ-1)<<2)));
+#if (_RAND_SIZ % 8) != 0
+#error ISAAC works in blocks of 8, so _RAND_SIZL must be at least 3
+#endif
+
+static uint32_t ind(_rand_ctx *ctx, uint32_t x) {
+    return ctx->randmem[(x >> 2) & (_RAND_SIZ-1)];
 }
 
-/* XXX requires calling in very specific context below.
-   x and y are locals, others are notionally parameters. */
-#define RNGSTEP(mix) \
-  x = *m; \
-  a = (a ^ (mix)) + *m2++; \
-  *m++ = y = ind(mm, x) + a + b; \
-  *r++ = b = ind(mm, y >> _RAND_SIZL) + x
+static void rngstep(_rand_ctx *ctx, int i, int j, uint32_t mix) { \
+   uint32_t x, y;
+   x = ctx->randmem[i];
+   ctx->randa = (ctx->randa ^ mix) + ctx->randmem[j];
+   ctx->randmem[i] = y = ind(ctx, x) + ctx->randa + ctx->randb;
+   ctx->randrsl[i] = ctx->randb = ind(ctx, y >> _RAND_SIZL) + x;
+}
 
 void _rand_isaac(_rand_ctx *ctx) {
-   uint32_t a, b, x, y;
-   uint32_t *m, *mm, *m2, *r, *mend;
-   mm = ctx->randmem; r = ctx->randrsl;
-   a = ctx->randa; b = ctx->randb + (++(ctx->randc));
-   for (m = mm, mend = m2 = m + _RAND_SIZ / 2; m < mend; )
+   int i, j;
+   ctx->randc++;
+   ctx->randb += ctx->randc;
+   for (i = 0, j = _RAND_SIZ / 2; i < _RAND_SIZ / 2; )
    {
-     RNGSTEP(a << 13);
-     RNGSTEP(a >> 6);
-     RNGSTEP(a << 2);
-     RNGSTEP(a >> 16);
+     rngstep(ctx, i++, j++, ctx->randa << 13);
+     rngstep(ctx, i++, j++, ctx->randa >> 6);
+     rngstep(ctx, i++, j++, ctx->randa << 2);
+     rngstep(ctx, i++, j++, ctx->randa >> 16);
    }
-   for (m2 = mm; m2 < mend; )
+   for (i = 0, j = _RAND_SIZ / 2; i < _RAND_SIZ / 2; )
    {
-     RNGSTEP(a << 13);
-     RNGSTEP(a >> 6);
-     RNGSTEP(a << 2);
-     RNGSTEP(a >> 16);
+     rngstep(ctx, j++, i++, ctx->randa << 13);
+     rngstep(ctx, j++, i++, ctx->randa >> 6);
+     rngstep(ctx, j++, i++, ctx->randa << 2);
+     rngstep(ctx, j++, i++, ctx->randa >> 16);
    }
-   ctx->randb = b; ctx->randa = a;
 }
 
-
-/* XXX requires calling in very specific context below. */
-#define MIX do { \
-   a ^= b << 11; d += a; b += c; \
-   b ^= c >> 2;  e += b; c += d; \
-   c ^= d << 8;  f += c; d += e; \
-   d ^= e >> 16; g += d; e += f; \
-   e ^= f << 10; h += e; f += g; \
-   f ^= g >> 4;  a += f; g += h; \
-   g ^= h << 8;  b += g; h += a; \
-   h ^= a >> 9;  c += h; a += b; } while(0)
+static inline void mix(uint32_t tmp[8]) {
+   tmp[0] ^= tmp[1] << 11; tmp[3] += tmp[0]; tmp[1] += tmp[2];
+   tmp[1] ^= tmp[2] >> 2;  tmp[4] += tmp[1]; tmp[2] += tmp[3];
+   tmp[2] ^= tmp[3] << 8;  tmp[5] += tmp[2]; tmp[3] += tmp[4];
+   tmp[3] ^= tmp[4] >> 16; tmp[6] += tmp[3]; tmp[4] += tmp[5];
+   tmp[4] ^= tmp[5] << 10; tmp[7] += tmp[4]; tmp[5] += tmp[6];
+   tmp[5] ^= tmp[6] >> 4;  tmp[0] += tmp[5]; tmp[6] += tmp[7];
+   tmp[6] ^= tmp[7] << 8;  tmp[1] += tmp[6]; tmp[7] += tmp[0];
+   tmp[7] ^= tmp[0] >> 9;  tmp[2] += tmp[7]; tmp[0] += tmp[1];
+}
 
 /* if (flag==TRUE), then use the contents of randrsl[] to initialize mm[]. */
 void _rand_isaac_init(_rand_ctx *ctx, int flag) {
-   int i;
-   uint32_t a, b, c, d, e, f, g, h;
-   uint32_t *m, *r;
+   int i, j;
+   uint32_t tmp[8];
+
    ctx->randa = ctx->randb = ctx->randc = 0;
-   m = ctx->randmem;
-   r = ctx->randrsl;
-   a = b = c = d = e = f = g = h = 0x9e3779b9;  /* the golden ratio */
+   tmp[0] = tmp[1] = tmp[2] = tmp[3] = tmp[4] = tmp[5] = tmp[6] = tmp[7] = 0x9e3779b9;  /* the golden ratio */
 
    for (i = 0; i < 4; i++)          /* scramble it */
-     MIX;
+     mix(tmp);
 
    if (flag)
    {
      /* initialize using the contents of r[] as the seed */
      for (i = 0; i < _RAND_SIZ; i += 8)
      {
-       a+=r[i    ]; b += r[i + 1]; c += r[i + 2]; d += r[i + 3];
-       e+=r[i + 4]; f += r[i + 5]; g += r[i + 6]; h += r[i + 7];
-       MIX;
-       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
-       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
+       for (j = 0; j < 8; ++j)
+         tmp[j] += ctx->randrsl[i + j];
+       mix(tmp);
+       for (j = 0; j < 8; ++j)
+         ctx->randmem[i + j] = tmp[j];
      }
      /* do a second pass to make all of the seed affect all of m */
      for (i = 0; i < _RAND_SIZ; i += 8)
      {
-       a+=m[i    ]; b += m[i + 1]; c += m[i + 2]; d += m[i + 3];
-       e+=m[i + 4]; f += m[i + 5]; g += m[i + 6]; h += m[i + 7];
-       MIX;
-       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
-       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
+       for (j = 0; j < 8; ++j)
+         tmp[j] += ctx->randmem[i + j];
+       mix(tmp);
+       for (j = 0; j < 8; ++j)
+         ctx->randmem[i + j] = tmp[j];
      }
    }
    else
@@ -96,9 +95,9 @@ void _rand_isaac_init(_rand_ctx *ctx, int flag) {
      /* fill in m[] with messy stuff */
      for (i = 0; i < _RAND_SIZ; i += 8)
      {
-       MIX;
-       m[i    ] = a; m[i + 1] = b; m[i + 2] = c; m[i + 3] = d;
-       m[i + 4] = e; m[i + 5] = f; m[i + 6] = g; m[i + 7] = h;
+       mix(tmp);
+       for (j = 0; j < 8; ++j)
+         ctx->randmem[i + j] = tmp[j];
      }
    }
 
