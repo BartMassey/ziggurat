@@ -77,7 +77,6 @@ static inline uint32_t rand32r(_rand_ctx *r) {
 	    inited = 1;
 	}
 	_rand_isaac(r);
-	r->randcnt = _RAND_SIZ;
     }
     return r->randrsl[--r->randcnt];
 }

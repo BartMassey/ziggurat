@@ -45,6 +45,7 @@ void _rand_isaac(_rand_ctx *ctx) {
      rngstep(ctx, j++, i++, ctx->randa << 2);
      rngstep(ctx, j++, i++, ctx->randa >> 16);
    }
+   ctx->randcnt = _RAND_SIZ;  /* mark this context ready for use */
 }
 
 static inline void mix(uint32_t tmp[8]) {
@@ -102,7 +103,6 @@ void _rand_isaac_init(_rand_ctx *ctx, int flag) {
    }
 
    _rand_isaac(ctx);          /* fill in the first set of results */
-   ctx->randcnt = _RAND_SIZ;  /* prepare to use the first set of results */
 }
 
 
