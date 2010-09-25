@@ -130,24 +130,9 @@ static inline double exponential(void) {
     return _rand_exponential(r, idx);
 }
 
-extern double _rand_polynomial_w[256];
-extern double _rand_polynomial_k[256];
-
-extern double _rand_polynomial(double x, int idx, int n);
-
 /* Return a variate with distribution (1 - x)**n */
 static inline double polynomial(int n) {
-    const int pn = 50;   /* XXX must match PN in zigconsts.h */
-    double x;
-    int idx;
-    if (n < pn)
-	return 1.0 - pow(uniform(), 1.0 / (n + 1));
-    idx = rand32() & 0xFF;
-    x =  uniform() * _rand_polynomial_w[idx];
-    /* About 95% of the time we return here 1st try. */
-    if (x < _rand_polynomial_k[idx])
-	return pn * x / n;
-    return _rand_polynomial(x, idx, n);
+    return 1 - pow(uniform(), n + 1.0);
 }
 
 #endif

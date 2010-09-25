@@ -10,9 +10,9 @@ LIBDIR = $(DESTDIR)/lib
 CC = gcc
 CFLAGS = -g -O4 -Werror -Wall -Wextra -Wmissing-prototypes -Wwrite-strings
 LIBS = -lm
-TABS = normal_tab.c exponential_tab.c polynomial_tab.c
-DOBJS = normal.o exponential.o polynomial.o \
-        normal_tab.o exponential_tab.o polynomial_tab.o
+TABS = normal_tab.c exponential_tab.c
+DOBJS = normal.o exponential.o \
+        normal_tab.o exponential_tab.o
 OBJS = random.o isaac.o $(DOBJS)
 
 libzrandom.a: $(OBJS)
@@ -44,9 +44,6 @@ polytest.dat: polytest
 polytest: polytest.c zrandom.h libzrandom.a
 	$(CC) $(CFLAGS) -o polytest polytest.c libzrandom.a $(LIBS)
 
-polyzig: polyzig.c
-	$(CC) $(CFLAGS) -o polyzig polyzig.c $(LIBS)
-
 install: libzrandom.a
 	-[ -d $(INCDIR) ] || mkdir $(INCDIR)
 	cp zrandom.h $(INCDIR)/
@@ -56,5 +53,4 @@ install: libzrandom.a
 clean:
 	-rm -f $(OBJS) libzrandom.a $(TABS) mktables \
                normaltest.dat normaltest \
-               polytest.dat polytest \
-               polyzig
+               polytest.dat polytest
