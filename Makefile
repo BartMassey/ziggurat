@@ -29,7 +29,7 @@ $(DOBJS): zigconsts.h
 
 $(OBJS): zrandom.h
 
-check: normaltest.dat polytest.dat normaltest.gnuplot polytest.gnuplot
+check: normaltest.dat polytest.dat
 	gnuplot -p -e "plot 'normaltest.dat' using 1:2 with boxes, '' using 1:3 with lines" &
 	gnuplot -p -e "plot 'polytest.dat' using 1:2 with boxes, '' using 1:3 with lines" &
 
