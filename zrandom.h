@@ -132,7 +132,7 @@ static inline double exponential(void) {
 
 /* Return a variate with distribution (1 - x)**n */
 static inline double polynomial(int n) {
-    return 1 - pow(uniform(), n + 1.0);
+    return 1.0 - pow(uniform(), 1.0 / (n + 1.0));
 }
 
 #endif
