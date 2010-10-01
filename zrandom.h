@@ -86,7 +86,7 @@ static inline uint32_t rand32(void) {
 }
 
 static inline long zrandom(void) {
-    return (long) rand32();
+    return (long) (rand32() & 0x7fffffff);
 }
 
 extern double _rand_normal_w[256];
