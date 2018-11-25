@@ -6,6 +6,11 @@
    Please see the file LICENSE in this distribution for license terms.
 */
 
+/*
+   This code no longer generates tables for the (broken) polynomial
+   Ziggurat unless POLYNOMIAL_TAB is defined.
+*/
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,10 +23,12 @@
 # define EMANTISSA 4294967296.0 /* 32 bit mantissa */
 # define PMANTISSA 4294967296.0 /* 32 bit mantissa */
 
-static double fi[256], fe[256], fp[256];
-static double wi[256], we[256], wp[256];
+static double fi[256], fe[256];
+static double wi[256], we[256];
 static uint32_t ki[256], ke[256];
-static double kp[256];
+
+#ifdef POLYNOMIAL_TAB
+static double kp[256], wp[256], fp[256];
 
 static double polynomial_advance(double x0) {
     double dx = 0.5;
@@ -37,6 +44,7 @@ static double polynomial_advance(double x0) {
     }
     abort();
 }
+#endif
 
 static void 
 create_ziggurat_tables (void)
@@ -99,6 +107,7 @@ create_ziggurat_tables (void)
     }
   ke[1] = 0;
 
+#ifdef POLYNOMIAL_TAB
   /* Zigurrat tables for the polynomial distribution. */
   /* XXX Goes forward instead of backward here, just gratuitously. */
   x1 = 0;
@@ -113,6 +122,7 @@ create_ziggurat_tables (void)
   kp[255] = 1 - exp(-1);
   wp[255] = 1;
   fp[255] = 0;
+#endif
 }
 
 static void write_double_table(FILE *fp, const char *name, double *t, int nt) {
@@ -156,6 +166,7 @@ int main(void) {
     write_double_table(f, "_rand_exponential_f", fe, 256);
     fclose(f);
 
+#ifdef POLYNOMIAL_TAB
     f = fopen("polynomial_tab.c", "w");
     assert(f);
     write_header(f);
@@ -163,6 +174,7 @@ int main(void) {
     write_double_table(f, "_rand_polynomial_w", wp, 256);
     write_double_table(f, "_rand_polynomial_f", fp, 256);
     fclose(f);
+#endif
 
     return 0;
 }
