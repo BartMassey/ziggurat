@@ -1,3 +1,8 @@
+/*
+   Copyright (C) 2007 Bart Massey
+
+   Please see the file LICENSE in this distribution for license terms.
+*/
 #include <stdio.h>
 #include <math.h>
 #include "zrandom.h"

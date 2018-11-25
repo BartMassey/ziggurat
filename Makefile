@@ -1,9 +1,7 @@
 # Copyright (C) 2007 Bart Massey
-# All rights reserved.
-#
-# Please see the file COPYING in this distribution for usage
-# terms.
-#
+# Please see the file LICENSE in this distribution for
+# license terms.
+
 DESTDIR = /usr/local
 INCDIR = $(DESTDIR)/include
 LIBDIR = $(DESTDIR)/lib

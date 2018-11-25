@@ -1,3 +1,8 @@
+/*
+   Copyright (C) 2007 Bart Massey
+
+   Please see the file LICENSE in this distribution for license terms.
+*/
 #include "zrandom.h"
 
 _rand_ctx _rand_ctx_default;
